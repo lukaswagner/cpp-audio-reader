@@ -1,0 +1,19 @@
+# copied from default settings
+BasedOnStyle: LLVM
+UseTab: Never
+IndentWidth: 4
+TabWidth: 4
+BreakBeforeBraces: Allman
+AllowShortIfStatementsOnASingleLine: false
+IndentCaseLabels: false
+# ColumnLimit: 0
+AccessModifierOffset: -4
+
+# custom settings
+ColumnLimit: 80
+Cpp11BracedListStyle : true
+AllowAllArgumentsOnNextLine: true
+AlignAfterOpenBracket: AlwaysBreak
+BinPackArguments: false
+BinPackParameters: false
+PointerAlignment: Left
