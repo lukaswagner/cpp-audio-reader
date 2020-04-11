@@ -1,10 +1,13 @@
-#include <iostream>
-
-#include <portaudio.h>
+#include <audio.hpp>
 
 int main(int argc, char const *argv[])
 {
-    const auto info = Pa_GetVersionInfo();
-    std::cout << "Using " << info->versionText << std::endl;
+    auto audio = Audio();
+    audio.init();
+    // while (true)
+    // {
+    //     audio.process();
+    // }
+    audio.deinit();
     return 0;
 }
