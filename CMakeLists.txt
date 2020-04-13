@@ -22,7 +22,8 @@ set(sources
     ${source_dir}/main.cpp
     ${source_dir}/audio.cpp)
 
-include(PortAudio.cmake)
+include(cmake/PortAudio.cmake)
+include(cmake/FFTW.cmake)
 
 include_directories(${PORTAUDIO_INCLUDE_DIR}, ${include_dir})
 add_executable(audioReader ${sources} ${headers})
