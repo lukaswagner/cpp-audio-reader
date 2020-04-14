@@ -2,9 +2,14 @@
 
 #include <iostream>
 
+Log::Log() : Module()
+{
+    input<0>() = std::make_shared<ModuleInput<float>>();
+}
+
 void Log::process()
 {
-    const auto& in = std::get<0>(m_input)->read();
+    const auto& in = read<0>();
 
     std::cout << in << std::endl;
 }

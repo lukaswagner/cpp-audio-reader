@@ -1,13 +1,10 @@
 #pragma once
 
-#include "base/inputModule.hpp"
-#include "base/outputModule.hpp"
+#include "base/combinedModule.hpp"
 
-// class inherits prepare and step via dominance
-#pragma warning(disable : 4250)
-
-class Increment : public InputModule<float>, public OutputModule<float>
+class Increment : public Module<ModuleInputs<float>, ModuleOutputs<float>>
 {
 public:
+    Increment();
     void process() override;
 };

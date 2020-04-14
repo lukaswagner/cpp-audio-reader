@@ -1,8 +1,10 @@
 #pragma once
 
-#include "base/inputModule.hpp"
+#include "base/combinedModule.hpp"
 
-class Log : public InputModule<float>
+class Log : public Module<ModuleInputs<float>, ModuleOutputs<>>
 {
+public:
+    Log();
     void process() override;
 };

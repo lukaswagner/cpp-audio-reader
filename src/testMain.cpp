@@ -2,8 +2,7 @@
 #include <memory>
 #include <vector>
 
-// #include "base/module.hpp"
-#include "base/moduleData.hpp"
+#include "base/combinedModule.hpp"
 #include "modules/test/increment.hpp"
 #include "modules/test/log.hpp"
 #include "modules/test/sum.hpp"
@@ -16,7 +15,7 @@ int main(int argc, char const* argv[])
     auto logInc = Log();
     auto logSum = Log();
 
-    auto modules = std::vector<Module>{inc, sum, logInc, logSum};
+    auto modules = std::vector<IModule>{inc, sum, logInc, logSum};
 
     // first, init all modules
     auto success = true;
@@ -36,40 +35,35 @@ int main(int argc, char const* argv[])
     }
 
     // const value for second sum input
-    auto val = std::make_shared<ModuleData<float>>();
-    val->write() = 3;
-    val->resetChanged();
+    auto val = std::make_shared<ModuleOutput<float>>();
 
     // connect all inputs/outputs - first get outputs
-    const auto incOut = inc.getOutputPtr<0>();
-    const auto sumOut = sum.getOutputPtr<0>();
+    const auto incOut = inc.output<0>();
+    const auto sumOut = sum.output<0>();
 
     // inc feeds into itself
-    inc.setInputPtr<0>(incOut);
+    incOut->connect(inc.input<0>());
 
     // sum adds up inc and val
-    sum.setInputPtr<0>(incOut);
-    sum.setInputPtr<1>(val);
+    incOut->connect(sum.input<0>());
+    val->connect(sum.input<1>());
 
     // log out both outputs
-    logInc.setInputPtr<0>(incOut);
-    logSum.setInputPtr<0>(sumOut);
+    incOut->connect(logInc.input<0>());
+    sumOut->connect(logSum.input<0>());
+
+    // set constant value
+    val->write() = 3.0f;
 
     // main loop - only run three times
     for (auto i = 0; i < 3; i++)
     {
-        // prepare mainly resets the changed flag of module outputs
-        for (auto& m : modules)
-        {
-            m.prepare();
-        }
-
-        inc.step();
-        sum.step();
+        inc.update();
+        sum.update();
         std::cout << "Inc value: ";
-        logInc.step();
+        logInc.update();
         std::cout << "Sum value: ";
-        logSum.step();
+        logSum.update();
     }
 
     // clean up
