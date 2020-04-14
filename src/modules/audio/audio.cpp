@@ -1,7 +1,7 @@
 #include <iomanip>
 #include <iostream>
 
-#include "audio.hpp"
+#include "modules/audio/audio.hpp"
 
 bool Audio::init()
 {
@@ -12,8 +12,7 @@ bool Audio::init()
     auto error = Pa_Initialize();
     if (error != paNoError)
     {
-        std::cout << "Could not initialize PortAudio. Error code: " << error
-                  << std::endl;
+        std::cout << "Could not initialize PortAudio: " << error << std::endl;
         return false;
     }
 
@@ -24,6 +23,10 @@ bool Audio::init()
     {
         const auto info = Pa_GetDeviceInfo(i);
         const auto apiInfo = Pa_GetHostApiInfo(info->hostApi);
+        if (info->maxInputChannels == 0)
+        {
+            continue;
+        }
         std::cout << std::setw(2) << i << " : [" << apiInfo->name << "] [in "
                   << info->maxInputChannels << "] [out "
                   << info->maxOutputChannels << "] " << info->name << std::endl;
@@ -38,22 +41,27 @@ bool Audio::init()
     const auto deviceInfo = Pa_GetDeviceInfo(deviceIndex);
 
     const auto inParams = PaStreamParameters{
-        deviceIndex, 2, paFloat32, deviceInfo->defaultLowInputLatency, NULL};
+        deviceIndex, 1, paFloat32, deviceInfo->defaultLowInputLatency, NULL};
 
     error = Pa_OpenStream(
         &m_stream,
         &inParams,
         NULL,
         deviceInfo->defaultSampleRate,
-        0,
-        0,
+        paFramesPerBufferUnspecified,
+        paNoFlag,
         NULL,
         NULL);
-
     if (error != paNoError)
     {
-        std::cout << "Could not open stream. Error code: " << error
-                  << std::endl;
+        std::cout << "Could not open stream: " << error << std::endl;
+        return false;
+    }
+
+    error = Pa_StartStream(m_stream);
+    if (error != paNoError)
+    {
+        std::cout << "Could not start stream: " << error << std::endl;
         return false;
     }
 
@@ -63,11 +71,23 @@ bool Audio::init()
 void Audio::deinit()
 {
     std::cout << "Shutting down PortAudio" << std::endl;
-    const auto error = Pa_Terminate();
+
+    auto error = Pa_StopStream(m_stream);
     if (error != paNoError)
     {
-        std::cout << "Error during PortAudio shutdown: Error code: " << error
-                  << std::endl;
+        std::cout << "Error while stopping stream: " << error << std::endl;
+    }
+
+    error = Pa_CloseStream(m_stream);
+    if (error != paNoError)
+    {
+        std::cout << "Error while closing stream: " << error << std::endl;
+    }
+
+    error = Pa_Terminate();
+    if (error != paNoError)
+    {
+        std::cout << "Error during PortAudio shutdown: " << error << std::endl;
     }
 }
 

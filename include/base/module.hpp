@@ -1,6 +1,13 @@
+#pragma once
+
 class Module
 {
-    virtual bool init() = 0;
-    virtual void deinit() = 0;
-    virtual void process() = 0;
+protected:
+    virtual void process();
+
+public:
+    virtual bool init();
+    virtual void deinit();
+    virtual void prepare();
+    virtual void step();
 };
